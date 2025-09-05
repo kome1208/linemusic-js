@@ -100,3 +100,5 @@ export class LINEMusic {
         return JSON.parse(getFeaturedResponse.body);
     }
 }
+
+export * from "./types";
