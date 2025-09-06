@@ -3,23 +3,25 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
   "files": [
     "dist/"
   ],
-  "module": "dist/index.mjs",
   "scripts": {
     "build": "tsup",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:check": "tsc --noEmit --incremental false",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "tsup": "^8.5.0"
   },
   "dependencies": {
-    "got": "^14.4.8",
-    "tsup": "^8.5.0"
+    "got": "^14.4.8"
   }
 }
