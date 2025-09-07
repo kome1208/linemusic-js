@@ -60,12 +60,16 @@ type GetVideosResult = BaseResponse<GetVideos>;
 type GetPlaylistsResult = BaseResponse<GetPlaylists>;
 type GetChartResult = BaseResponse<GetChart>;
 type GetLyricsResult = BaseResponse<GetLyrics>;
+type GetAutoCompletesResult = BaseResponse<AutoCompletes>;
 interface GetTrackSource {
     requestTime: number;
     playRange: string;
     playReason: string;
     nextAction: string;
     trackSource: TrackSource;
+}
+interface AutoCompletes {
+    sacList: string[];
 }
 interface GetChart {
     type: string;
@@ -216,6 +220,7 @@ declare class LINEMusic {
     getAlbum(albumId: string): Promise<GetAlbumResult>;
     getAlbumTracks(albumId: string, options?: DisplayOptions): Promise<GetTracksResult>;
     getTracks(trackId: string): Promise<GetTracksResult>;
+    getAutoCompletes(query: string): Promise<GetAutoCompletesResult>;
 }
 
-export { type Album, type Artist, type BaseResponse, BitRateType, ChartType, type DisplayOptions, FeaturedType, type GetAlbum, type GetAlbumResult, type GetAlbums, type GetAlbumsResult, type GetArtists, type GetArtistsResult, type GetChart, type GetChartResult, type GetLyrics, type GetLyricsResult, type GetPlaylists, type GetPlaylistsResult, type GetTrackSource, type GetTrackSourceOptions, type GetTrackSourceResult, type GetTracks, type GetTracksResult, type GetVideos, type GetVideosResult, LINEMusic, type LINEMusicOptions, type LyricsOptions, type Playlist, type SearchOptions, SearchType, SortType, type Tab, type Track, type TrackSource, type Video };
+export { type Album, type Artist, type AutoCompletes, type BaseResponse, BitRateType, ChartType, type DisplayOptions, FeaturedType, type GetAlbum, type GetAlbumResult, type GetAlbums, type GetAlbumsResult, type GetArtists, type GetArtistsResult, type GetAutoCompletesResult, type GetChart, type GetChartResult, type GetLyrics, type GetLyricsResult, type GetPlaylists, type GetPlaylistsResult, type GetTrackSource, type GetTrackSourceOptions, type GetTrackSourceResult, type GetTracks, type GetTracksResult, type GetVideos, type GetVideosResult, LINEMusic, type LINEMusicOptions, type LyricsOptions, type Playlist, type SearchOptions, SearchType, SortType, type Tab, type Track, type TrackSource, type Video };
