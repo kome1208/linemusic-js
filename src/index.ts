@@ -66,7 +66,9 @@ export class LINEMusic {
             {
                 searchParams: {
                     "deviceId": this.deviceId,
+                    "forceAnonymous": false,
                     "bitRateType": options.bitRateType,
+                    "t": Date.now()
                 },
                 headers: this.getHeaders()
             }
