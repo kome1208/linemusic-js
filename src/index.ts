@@ -1,5 +1,5 @@
 import got from "got";
-import { BitRateType, FeaturedType, GetLyricsResult, GetTrackSourceOptions, GetTrackSourceResult, LINEMusicOptions, LyricsOptions, GetAlbumsResult, GetArtistsResult, SearchOptions, GetPlaylistsResult, GetTracksResult, SearchType, GetVideosResult, SortType, DisplayOptions, ChartType, GetChartResult, GetAlbumResult } from "./types.js";
+import { BitRateType, FeaturedType, GetLyricsResult, GetTrackSourceOptions, GetTrackSourceResult, LINEMusicOptions, LyricsOptions, GetAlbumsResult, GetArtistsResult, SearchOptions, GetPlaylistsResult, GetTracksResult, SearchType, GetVideosResult, SortType, DisplayOptions, ChartType, GetChartResult, GetAlbumResult, GetAutoCompletesResult } from "./types.js";
 
 export class LINEMusic {
     private lmlc: string;
@@ -133,6 +133,20 @@ export class LINEMusic {
         const response = await got.get(
             `${this.apiUrl}/tracks/${trackId}.v1`,
             {
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body);
+    }
+
+    async getAutoCompletes(query: string): Promise<GetAutoCompletesResult> {
+        const response = await got.get(
+            `${this.apiUrl}/search/autoCompletes.v1`,
+            {
+                searchParams: {
+                    "query": query,
+                },
                 headers: this.getHeaders()
             }
         );

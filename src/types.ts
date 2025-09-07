@@ -80,12 +80,18 @@ export type GetChartResult = BaseResponse<GetChart>;
 
 export type GetLyricsResult = BaseResponse<GetLyrics>;
 
+export type GetAutoCompletesResult = BaseResponse<AutoCompletes>;
+
 export interface GetTrackSource {
     requestTime: number,
     playRange: string,
     playReason: string,
     nextAction: string,
     trackSource: TrackSource
+}
+
+export interface AutoCompletes {
+    sacList: string[]
 }
 
 export interface GetChart {
