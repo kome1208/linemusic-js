@@ -65,6 +65,7 @@ export class LINEMusic {
             `${this.apiUrl}/track/${trackId}/source/forWebPlay.v1`,
             {
                 searchParams: {
+                    "deviceId": this.deviceId,
                     "bitRateType": options.bitRateType,
                 },
                 headers: this.getHeaders()
