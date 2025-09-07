@@ -11,6 +11,6 @@ export default defineConfig({
     entry: ['./src/index.ts'],
     skipNodeModulesBundle: true,
     sourcemap: 'inline',
-    target: 'es2020',
+    target: 'esnext',
     silent: true,
 });

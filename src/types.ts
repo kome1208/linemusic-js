@@ -68,6 +68,8 @@ export type GetTracksResult = BaseResponse<GetTracks>;
 
 export type GetAlbumsResult = BaseResponse<GetAlbums>;
 
+export type GetAlbumResult = BaseResponse<GetAlbum>
+
 export type GetArtistsResult = BaseResponse<GetArtists>;
 
 export type GetVideosResult = BaseResponse<GetVideos>;
@@ -92,11 +94,15 @@ export interface GetChart {
     chartDate: string,
     duration: string,
     itemType: "TRACK" | "ALBUM" | "VIDEO",
-    items: GetTracks[] | GetAlbums[] | GetVideos[],
+    items: GetTracks | GetAlbums | GetVideos,
     subTab: Tab[],
     lineRankEndInternalId: number,
     previousLineRankEndInternalId: number,
     createdAt: string,
+}
+
+export interface GetAlbum {
+    album: Album
 }
 
 export interface Tab {

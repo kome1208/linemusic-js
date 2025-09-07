@@ -1,5 +1,5 @@
 import got from "got";
-import { BitRateType, FeaturedType, GetLyricsResult, GetTrackSourceOptions, GetTrackSourceResult, LINEMusicOptions, LyricsOptions, GetAlbumsResult, GetArtistsResult, SearchOptions, GetPlaylistsResult, GetTracksResult, SearchType, GetVideosResult, SortType, DisplayOptions, ChartType, GetChartResult } from "./types";
+import { BitRateType, FeaturedType, GetLyricsResult, GetTrackSourceOptions, GetTrackSourceResult, LINEMusicOptions, LyricsOptions, GetAlbumsResult, GetArtistsResult, SearchOptions, GetPlaylistsResult, GetTracksResult, SearchType, GetVideosResult, SortType, DisplayOptions, ChartType, GetChartResult, GetAlbumResult } from "./types.js";
 
 export class LINEMusic {
     private lmlc: string;
@@ -99,6 +99,43 @@ export class LINEMusic {
 
         return JSON.parse(getFeaturedResponse.body);
     }
+
+    async getAlbum(albumId: string): Promise<GetAlbumResult> {
+        const response = await got.get(
+            `${this.apiUrl}/album/${albumId}.v1`,
+            {
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body);
+    }
+
+    async getAlbumTracks(albumId: string, options: DisplayOptions = { display: 1000 }): Promise<GetTracksResult> {
+        const response = await got.get(
+            `${this.apiUrl}/album/${albumId}/tracks.v1`,
+            {
+                searchParams: {
+                    "start": options.start,
+                    "display": options.display
+                },
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body);
+    }
+
+    async getTracks(trackId: string): Promise<GetTracksResult> {
+        const response = await got.get(
+            `${this.apiUrl}/tracks/${trackId}.v1`,
+            {
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body);
+    }
 }
 
-export * from "./types";
+export * from "./types.js";
