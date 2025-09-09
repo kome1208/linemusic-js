@@ -15,6 +15,13 @@ declare enum SearchType {
     Playlists = "playlists",
     Lyrics = "lyrics"
 }
+declare enum ShareType {
+    Track = "track",
+    Album = "album",
+    Artist = "artist",
+    Video = "video",
+    Playlist = "playlist"
+}
 declare enum FeaturedType {
     Tracks = "tracks",
     Albums = "albums"
@@ -34,6 +41,12 @@ interface BaseResponse<T> {
         result: T;
     };
 }
+interface Share {
+    originUrl: string;
+    shortUrl: string;
+    thumbnailUrl: string;
+    channelId: number;
+}
 interface SearchOptions {
     start?: number;
     display?: number;
@@ -45,23 +58,13 @@ interface DisplayOptions {
     display?: number;
 }
 interface LyricsOptions {
-    apiVersion?: number;
+    apiVersion?: 1 | 3;
     nonSync?: boolean;
 }
 interface GetTrackSourceOptions {
     bitRateType?: BitRateType;
 }
-type GetTrackSourceResult = BaseResponse<GetTrackSource>;
-type GetTracksResult = BaseResponse<GetTracks>;
-type GetAlbumsResult = BaseResponse<GetAlbums>;
-type GetAlbumResult = BaseResponse<GetAlbum>;
-type GetArtistsResult = BaseResponse<GetArtists>;
-type GetVideosResult = BaseResponse<GetVideos>;
-type GetPlaylistsResult = BaseResponse<GetPlaylists>;
-type GetChartResult = BaseResponse<GetChart>;
-type GetLyricsResult = BaseResponse<GetLyrics>;
-type GetAutoCompletesResult = BaseResponse<AutoCompletes>;
-interface GetTrackSource {
+interface TrackSourceResponse {
     requestTime: number;
     playRange: string;
     playReason: string;
@@ -71,20 +74,17 @@ interface GetTrackSource {
 interface AutoCompletes {
     sacList: string[];
 }
-interface GetChart {
+interface Chart {
     type: string;
     title: string;
     chartDate: string;
     duration: string;
     itemType: "TRACK" | "ALBUM" | "VIDEO";
-    items: GetTracks | GetAlbums | GetVideos;
+    items: MultipleTracks | MultipleAlbums | MultipleVideos;
     subTab: Tab[];
     lineRankEndInternalId: number;
     previousLineRankEndInternalId: number;
     createdAt: string;
-}
-interface GetAlbum {
-    album: Album;
 }
 interface Tab {
     name: string;
@@ -97,31 +97,51 @@ interface TrackSource {
     playTime: number;
     eqMeta: string;
 }
-interface GetLyrics {
-    lyric: {
-        trackId: string;
-        isSyncLyric: boolean;
-        lyric: string;
-    };
-    credential: string;
+interface LyricsV1 {
+    trackId: string;
+    isSyncLyric: boolean;
+    lyric: string;
 }
-interface GetTracks {
+interface LyricsV3 {
+    trackId: string;
+    hasNormalLyric: boolean;
+    hasSyncLyric: boolean;
+    normalLyric: NormalLyric;
+    syncLyric: SyncLyric;
+}
+interface NormalLyric {
+    sourceType: string;
+    languageType: string;
+    text: string;
+}
+interface SyncLyric {
+    startTimeIndex: number[];
+    contents: SyncLyricContent[];
+}
+interface SyncLyricContent {
+    sourceType: string;
+    generatedType: string;
+    languageType: string;
+    contentType: string;
+    text: string[];
+}
+interface MultipleTracks {
     trackTotalCount: number;
     tracks: Track[];
 }
-interface GetAlbums {
+interface MultipleAlbums {
     albumTotalCount: number;
     albums: Album[];
 }
-interface GetArtists {
+interface MultipleArtists {
     artistTotalCount: number;
     albums: Artist[];
 }
-interface GetVideos {
+interface MultipleVideos {
     videoTotalCount: number;
     videos: Video[];
 }
-interface GetPlaylists {
+interface MultiplePlaylists {
     playlistTotalCount: number;
     playlists: Playlist[];
 }
@@ -164,6 +184,7 @@ interface Album {
     artists: Artist[];
     trackTotalCount: number;
     isAdult: boolean;
+    playtime?: number;
     producerLine: string;
     isStreaming: boolean;
     isMobileDownload: boolean;
@@ -212,15 +233,17 @@ declare class LINEMusic {
     private apiUrl;
     constructor(options: LINEMusicOptions);
     private getHeaders;
-    search(query: string, options?: SearchOptions): Promise<GetTracksResult | GetAlbumsResult | GetArtistsResult | GetVideosResult | GetPlaylistsResult>;
-    getLyrics(trackId: string, options?: LyricsOptions): Promise<GetLyricsResult>;
-    getTrackSource(trackId: string, options?: GetTrackSourceOptions): Promise<GetTrackSourceResult>;
-    getFeatured(type?: FeaturedType, options?: DisplayOptions): Promise<GetTracksResult | GetAlbumsResult>;
-    getChart(type?: ChartType): Promise<GetChartResult>;
-    getAlbum(albumId: string): Promise<GetAlbumResult>;
-    getAlbumTracks(albumId: string, options?: DisplayOptions): Promise<GetTracksResult>;
-    getTracks(trackId: string): Promise<GetTracksResult>;
-    getAutoCompletes(query: string): Promise<GetAutoCompletesResult>;
+    search(query: string, options?: SearchOptions): Promise<MultipleTracks | MultipleAlbums | MultipleArtists | MultiplePlaylists | MultipleVideos>;
+    getLyrics(trackId: string, options?: LyricsOptions): Promise<LyricsV1 | LyricsV3>;
+    getTrackSource(trackId: string, options?: GetTrackSourceOptions): Promise<TrackSourceResponse>;
+    getFeatured(type?: FeaturedType, options?: DisplayOptions): Promise<MultipleTracks | MultipleAlbums>;
+    getChart(type?: ChartType): Promise<Chart>;
+    getAlbum(albumId: string): Promise<Album>;
+    getAlbumTracks(albumId: string, options?: DisplayOptions): Promise<MultipleTracks>;
+    getPlaylist(playlistId: string): Promise<Playlist>;
+    getTrack(trackId: string): Promise<Track>;
+    getAutoCompletes(query: string): Promise<string[]>;
+    getShareUrl(type: ShareType, id: string): Promise<Share>;
 }
 
-export { type Album, type Artist, type AutoCompletes, type BaseResponse, BitRateType, ChartType, type DisplayOptions, FeaturedType, type GetAlbum, type GetAlbumResult, type GetAlbums, type GetAlbumsResult, type GetArtists, type GetArtistsResult, type GetAutoCompletesResult, type GetChart, type GetChartResult, type GetLyrics, type GetLyricsResult, type GetPlaylists, type GetPlaylistsResult, type GetTrackSource, type GetTrackSourceOptions, type GetTrackSourceResult, type GetTracks, type GetTracksResult, type GetVideos, type GetVideosResult, LINEMusic, type LINEMusicOptions, type LyricsOptions, type Playlist, type SearchOptions, SearchType, SortType, type Tab, type Track, type TrackSource, type Video };
+export { type Album, type Artist, type AutoCompletes, type BaseResponse, BitRateType, type Chart, ChartType, type DisplayOptions, FeaturedType, type GetTrackSourceOptions, LINEMusic, type LINEMusicOptions, type LyricsOptions, type LyricsV1, type LyricsV3, type MultipleAlbums, type MultipleArtists, type MultiplePlaylists, type MultipleTracks, type MultipleVideos, type NormalLyric, type Playlist, type SearchOptions, SearchType, type Share, ShareType, SortType, type SyncLyric, type SyncLyricContent, type Tab, type Track, type TrackSource, type TrackSourceResponse, type Video };

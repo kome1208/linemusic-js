@@ -1,5 +1,5 @@
 import got from "got";
-import { BitRateType, FeaturedType, GetLyricsResult, GetTrackSourceOptions, GetTrackSourceResult, LINEMusicOptions, LyricsOptions, GetAlbumsResult, GetArtistsResult, SearchOptions, GetPlaylistsResult, GetTracksResult, SearchType, GetVideosResult, SortType, DisplayOptions, ChartType, GetChartResult, GetAlbumResult, GetAutoCompletesResult } from "./types.js";
+import { BitRateType, FeaturedType, GetTrackSourceOptions, LINEMusicOptions, LyricsOptions, SearchOptions, SearchType, SortType, DisplayOptions, ChartType, Album, Playlist, MultipleTracks, MultipleAlbums, MultipleArtists, MultiplePlaylists, MultipleVideos, LyricsV1, LyricsV3, TrackSourceResponse, Chart, ShareType, Share, Track } from "./types.js";
 
 export class LINEMusic {
     private lmlc: string;
@@ -29,7 +29,7 @@ export class LINEMusic {
             sortType: SortType.Relevance,
             searchType: SearchType.Tracks
         }
-    ): Promise<GetTracksResult | GetAlbumsResult | GetArtistsResult | GetVideosResult | GetPlaylistsResult> {
+    ): Promise<MultipleTracks | MultipleAlbums | MultipleArtists | MultiplePlaylists | MultipleVideos> {
         const searchResponse = await got.get(
             `${this.apiUrl}/search/${options.searchType}.v1`,
             {
@@ -43,12 +43,12 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(searchResponse.body);
+        return JSON.parse(searchResponse.body).response.result.response.result;
     }
 
-    async getLyrics(trackId: string, options: LyricsOptions = { nonSync: true, apiVersion: 1 }): Promise<GetLyricsResult> {
+    async getLyrics(trackId: string, options: LyricsOptions = { nonSync: true, apiVersion: 1 }): Promise<LyricsV1 | LyricsV3> {
         const getLyricsResponse = await got.get(
-            `${this.apiUrl}/track/${trackId}/lyrics.v1`,
+            `${this.apiUrl}/track/${trackId}/lyrics.v${options.apiVersion}`,
             {
                 searchParams: {
                     "nonSync": options.nonSync,
@@ -57,10 +57,10 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(getLyricsResponse.body);
+        return JSON.parse(getLyricsResponse.body).response.result.lyric;
     }
 
-    async getTrackSource(trackId: string, options: GetTrackSourceOptions = { bitRateType: BitRateType.Mid }): Promise<GetTrackSourceResult> {
+    async getTrackSource(trackId: string, options: GetTrackSourceOptions = { bitRateType: BitRateType.Mid }): Promise<TrackSourceResponse> {
         const getTrackSourceResponse = await got.get(
             `${this.apiUrl}/track/${trackId}/source/forWebPlay.v1`,
             {
@@ -74,10 +74,10 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(getTrackSourceResponse.body);
+        return JSON.parse(getTrackSourceResponse.body).response.result;
     }
 
-    async getFeatured(type: FeaturedType = FeaturedType.Tracks, options: DisplayOptions = {start:1, display: 100}): Promise<GetTracksResult | GetAlbumsResult> {
+    async getFeatured(type: FeaturedType = FeaturedType.Tracks, options: DisplayOptions = {start:1, display: 100}): Promise<MultipleTracks | MultipleAlbums> {
         const getFeaturedResponse = await got.get(
             `${this.apiUrl}/${type == FeaturedType.Tracks ? "tracks/featuredNew" : "albums/featured"}.v1`,
             {
@@ -89,10 +89,10 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(getFeaturedResponse.body);
+        return JSON.parse(getFeaturedResponse.body).response.result;
     }
 
-    async getChart(type: ChartType = ChartType.Tracks): Promise<GetChartResult> {
+    async getChart(type: ChartType = ChartType.Tracks): Promise<Chart> {
         const getFeaturedResponse = await got.get(
             `${this.apiUrl}/chart/${type}.v1`,
             {
@@ -100,10 +100,10 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(getFeaturedResponse.body);
+        return JSON.parse(getFeaturedResponse.body).response.result.chart;
     }
 
-    async getAlbum(albumId: string): Promise<GetAlbumResult> {
+    async getAlbum(albumId: string): Promise<Album> {
         const response = await got.get(
             `${this.apiUrl}/album/${albumId}.v1`,
             {
@@ -111,10 +111,12 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(response.body);
+        if (!response.ok) throw Error(response.body);
+
+        return JSON.parse(response.body).response.result.album;
     }
 
-    async getAlbumTracks(albumId: string, options: DisplayOptions = { display: 1000 }): Promise<GetTracksResult> {
+    async getAlbumTracks(albumId: string, options: DisplayOptions = { display: 1000 }): Promise<MultipleTracks> {
         const response = await got.get(
             `${this.apiUrl}/album/${albumId}/tracks.v1`,
             {
@@ -126,21 +128,32 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(response.body);
+        return JSON.parse(response.body).response.result;
     }
 
-    async getTracks(trackId: string): Promise<GetTracksResult> {
+    async getPlaylist(playlistId: string): Promise<Playlist> {
         const response = await got.get(
-            `${this.apiUrl}/tracks/${trackId}.v1`,
+            `${this.apiUrl}/playlist/${playlistId}.v2`,
             {
                 headers: this.getHeaders()
             }
         );
 
-        return JSON.parse(response.body);
+        return JSON.parse(response.body).response.result.playlist;
     }
 
-    async getAutoCompletes(query: string): Promise<GetAutoCompletesResult> {
+    async getTrack(trackId: string): Promise<Track> {
+        const response = await got.get(
+            `${this.apiUrl}/track/${trackId}.v1`,
+            {
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body).response.result;
+    }
+
+    async getAutoCompletes(query: string): Promise<string[]> {
         const response = await got.get(
             `${this.apiUrl}/search/autoCompletes.v1`,
             {
@@ -151,7 +164,18 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(response.body);
+        return JSON.parse(response.body).response.result.sacList;
+    }
+
+    async getShareUrl(type: ShareType, id: string): Promise<Share> {
+        const response = await got.get(
+            `${this.apiUrl}/${type}/${id}/shareUrl.v1`,
+            {
+                headers: this.getHeaders()
+            }
+        );
+
+        return JSON.parse(response.body).response.result;
     }
 }
 

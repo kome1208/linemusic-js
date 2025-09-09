@@ -18,6 +18,14 @@ export enum SearchType {
     Lyrics = "lyrics",
 }
 
+export enum ShareType {
+    Track = "track",
+    Album = "album",
+    Artist = "artist",
+    Video = "video",
+    Playlist = "playlist",
+}
+
 export enum FeaturedType {
     Tracks = "tracks",
     Albums = "albums"
@@ -35,10 +43,18 @@ export enum BitRateType {
     Max = "max"
 }
 
+
 export interface BaseResponse<T> {
     response: {
         result: T
     }
+}
+
+export interface Share {
+    originUrl: string,
+    shortUrl: string,
+    thumbnailUrl: string,
+    channelId: number
 }
 
 export interface SearchOptions {
@@ -54,7 +70,7 @@ export interface DisplayOptions {
 }
 
 export interface LyricsOptions {
-    apiVersion?: number,
+    apiVersion?: 1 | 3,
     nonSync?: boolean
 }
 
@@ -62,27 +78,7 @@ export interface GetTrackSourceOptions {
     bitRateType?: BitRateType,
 }
 
-export type GetTrackSourceResult = BaseResponse<GetTrackSource>;
-
-export type GetTracksResult = BaseResponse<GetTracks>;
-
-export type GetAlbumsResult = BaseResponse<GetAlbums>;
-
-export type GetAlbumResult = BaseResponse<GetAlbum>
-
-export type GetArtistsResult = BaseResponse<GetArtists>;
-
-export type GetVideosResult = BaseResponse<GetVideos>;
-
-export type GetPlaylistsResult = BaseResponse<GetPlaylists>;
-
-export type GetChartResult = BaseResponse<GetChart>;
-
-export type GetLyricsResult = BaseResponse<GetLyrics>;
-
-export type GetAutoCompletesResult = BaseResponse<AutoCompletes>;
-
-export interface GetTrackSource {
+export interface TrackSourceResponse {
     requestTime: number,
     playRange: string,
     playReason: string,
@@ -94,21 +90,17 @@ export interface AutoCompletes {
     sacList: string[]
 }
 
-export interface GetChart {
+export interface Chart {
     type: string,
     title: string,
     chartDate: string,
     duration: string,
     itemType: "TRACK" | "ALBUM" | "VIDEO",
-    items: GetTracks | GetAlbums | GetVideos,
+    items: MultipleTracks | MultipleAlbums | MultipleVideos,
     subTab: Tab[],
     lineRankEndInternalId: number,
     previousLineRankEndInternalId: number,
     createdAt: string,
-}
-
-export interface GetAlbum {
-    album: Album
 }
 
 export interface Tab {
@@ -124,36 +116,60 @@ export interface TrackSource {
     eqMeta: string
 }
 
-export interface GetLyrics {
-    lyric: {
-        trackId: string,
-        isSyncLyric: boolean,
-        lyric: string,
-    },
-    credential: string
+export interface LyricsV1 {
+    trackId: string,
+    isSyncLyric: boolean,
+    lyric: string,
 }
 
-export interface GetTracks {
+export interface LyricsV3 {
+    trackId: string,
+    hasNormalLyric: boolean,
+    hasSyncLyric: boolean,
+    normalLyric: NormalLyric,
+    syncLyric: SyncLyric
+}
+
+export interface NormalLyric {
+    sourceType: string,
+    languageType: string,
+    text: string,
+}
+
+export interface SyncLyric {
+    startTimeIndex: number[],
+    contents: SyncLyricContent[]
+}
+
+export interface SyncLyricContent {
+    sourceType: string,
+    generatedType: string,
+    languageType: string,
+    contentType: string,
+    text: string[]
+}
+
+export interface MultipleTracks {
     trackTotalCount: number,
     tracks: Track[]
 }
 
-export interface GetAlbums {
+export interface MultipleAlbums {
     albumTotalCount: number,
     albums: Album[]
 }
 
-export interface GetArtists {
+export interface MultipleArtists {
     artistTotalCount: number,
     albums: Artist[]
 }
 
-export interface GetVideos {
+export interface MultipleVideos {
     videoTotalCount: number,
     videos: Video[]
 }
 
-export interface GetPlaylists {
+export interface MultiplePlaylists {
     playlistTotalCount: number,
     playlists: Playlist[]
 }
@@ -199,6 +215,7 @@ export interface Album {
     artists: Artist[],
     trackTotalCount: number,
     isAdult: boolean,
+    playtime?: number,
     producerLine: string,
     isStreaming: boolean,
     isMobileDownload: boolean,
