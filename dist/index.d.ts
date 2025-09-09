@@ -215,7 +215,7 @@ interface Playlist {
     timeInfo: string;
     updateTime: string;
     tracksTotalCount: number;
-    sub2Title: string;
+    sub2Title?: string;
     playtime: number;
     likeCount: number;
     isPublic: boolean;
