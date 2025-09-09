@@ -43,7 +43,7 @@ export class LINEMusic {
             }
         );
 
-        return JSON.parse(searchResponse.body).response.result.response.result;
+        return JSON.parse(searchResponse.body).response.result;
     }
 
     async getLyrics(trackId: string, options: LyricsOptions = { nonSync: true, apiVersion: 1 }): Promise<LyricsV1 | LyricsV3> {
