@@ -243,6 +243,7 @@ export interface Playlist {
     image: {
         baseImageUrl: string,
     },
+    tracks: Track[],
     desc: string,
     timeInfo: string,
     updateTime: string,
